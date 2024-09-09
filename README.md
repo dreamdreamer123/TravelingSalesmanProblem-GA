@@ -1,4 +1,4 @@
-# Seminar2
+# Traveling Salesman Problem - Genetic Algorithm
 
 **Project Overview**
 
