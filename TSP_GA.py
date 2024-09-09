@@ -3,7 +3,15 @@ import time
 
 import tsplib95
 
+
 def selectProblem(problem):
+    """
+    Selecting a problem from TSP problem database
+    Input:
+    1- Problem name
+    Output:
+    String containing the problem from TSP problem database
+    """
     with open('ALL_tsp/' + str(problem) + '.tsp') as f:
         text = f.read()
     return tsplib95.parse(text)
@@ -21,18 +29,6 @@ def dist_two_cities(city_1, city_2, problem):
     """
     edge = city_1, city_2
     return problem.get_weight(*edge)
-
-
-def weights_matrix(problem):
-    cities = [x for x in range(0, 17)]
-    matrix = [[0 for _ in range(0, 17)] for _ in range(0, 17)]
-    for i in cities:
-        for j in cities:
-            matrix[i][j] = dist_two_cities(i, j, problem)
-
-    for i in range(0, 17):
-        print(matrix[i])
-    return matrix
 
 
 def total_dist_individual(individual, problem):
@@ -71,7 +67,7 @@ def initial_population(cities_list, problem, n_population=250):
     return population_perms
 
 
-def fitness_prob(population, problem):
+def fitness_prob(population):
     """
     Calculating the fitness probability
     Input:
@@ -93,7 +89,7 @@ def fitness_prob(population, problem):
     return population_fitness_probs
 
 
-def roulette_wheel(population, problem):
+def roulette_wheel(population):
     """
     Implement a selection strategy based on proportionate roulette wheel
     Selection.
@@ -106,7 +102,7 @@ def roulette_wheel(population, problem):
     cumulative_probabilities = []
     cumulative_probability = 0.0
 
-    fitness_probs = fitness_prob(population, problem)
+    fitness_probs = fitness_prob(population)
 
     for prob in fitness_probs:
         cumulative_probability += prob
@@ -166,6 +162,15 @@ def mutation(offspring, mutation_per, problem):
 
 
 def tournament_selection(population, fitness_values, tournament_size, problem):
+    """
+    Implement a tournament selection strategy
+    Input:
+    1- population
+    2- fitness probabilities
+    3- tournament size
+    Output:
+    Selected individual
+    """
     selected = []
     population_size = len(population)
 
@@ -183,6 +188,13 @@ def tournament_selection(population, fitness_values, tournament_size, problem):
 
 
 def findBestOffspring(population):
+    """
+    Finds the best offspring from given population
+    Input:
+    1- population
+    Output:
+    Best offspring
+    """
     min = float('inf')
     min_index = None
     for i in range(len(population)):
@@ -193,6 +205,15 @@ def findBestOffspring(population):
 
 
 def solution(populationStart, n_generations, mutation_per):
+    """
+    Genetic algorithm that solves the TSP
+    Input:
+    1- initial population
+    2- number of generations GA will have
+    3- mutation rate
+    Output:
+    Best offspring of last (best) generation
+    """
     population = initial_population(populationStart, problem, n_population=200)
     old_best = findBestOffspring(population)
 
@@ -202,10 +223,10 @@ def solution(populationStart, n_generations, mutation_per):
         next_population.append(next_best)
 
         while len(next_population) < len(population):
-            parents = {0: roulette_wheel(population, problem),
-                       1: roulette_wheel(population, problem)}
+            parents = {0: roulette_wheel(population),
+                       1: roulette_wheel(population)}
 
-             # roditelje maknut
+            # roditelje maknut
             next_population.append(parents[0])
             next_population.append(parents[1])
 
@@ -213,8 +234,8 @@ def solution(populationStart, n_generations, mutation_per):
             child_1 = mutation(child_1, mutation_per, problem)
             child_2 = mutation(child_2, mutation_per, problem)
 
-            next_population.append([total_dist_individual(child_1,problem),child_1])
-            next_population.append([total_dist_individual(child_2,problem),child_2])
+            next_population.append([total_dist_individual(child_1, problem), child_1])
+            next_population.append([total_dist_individual(child_2, problem), child_2])
 
         population = next_population[:200]
         if old_best != next_best:
@@ -224,6 +245,7 @@ def solution(populationStart, n_generations, mutation_per):
             print("Best Individual Cost = " + str(next_best[0]))
 
     return findBestOffspring(population)
+
 
 # 2085
 # problem = selectProblem("gr17")
